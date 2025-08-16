@@ -1,0 +1,29 @@
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+# Force specific files to have Unix line endings
+*.sh text eol=lf
+*.json text eol=lf
+
+# Force specific files to have Windows line endings
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Ensure that these files are always treated as text
+# and get normalized to LF on checkin and back to native line endings on checkout
+*.md text eol=crlf
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.txt text eol=crlf
+
+# Binary files should not be touched
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.dll binary
+*.exe binary
+*.zip binary
+*.pdf binary
