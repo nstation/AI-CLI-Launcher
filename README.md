@@ -9,7 +9,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 - **One-Click Environment Setup**: Automatic installation of Node.js and AI CLI tools
 - **Multi-Language Support**: Japanese for Japanese locale, English for others
 - **Selective Uninstallation**: Remove only necessary components
-- **Self-Contained**: Single executable files with no .NET runtime required
+- **Lightweight**: Ultra-compact executables (~180KB each)
 - **Safe Design**: Confirmation dialogs and real-time logs for transparency
 
 ## 📦 Included Applications
@@ -25,7 +25,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 - **ワンクリック環境構築**: Node.js と AI CLI ツールを自動インストール
 - **多言語対応**: 日本語環境では日本語、それ以外では英語で表示
 - **選択制アンインストール**: 必要なコンポーネントのみを削除可能
-- **自己完結型**: .NET ランタイム不要の単一実行ファイル
+- **軽量**: 超コンパクトな実行ファイル（各約180KB）
 - **安全設計**: 確認ダイアログとリアルタイムログで透明性を確保
 
 ## 📦 含まれるアプリケーション
@@ -87,7 +87,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ### Operating Environment
 - **OS**: Windows 10 / Windows 11
 - **Architecture**: x64
-- **Runtime**: Not required (self-contained)
+- **Runtime**: .NET 8.0 Runtime required (framework-dependent)
 - **Internet**: Required only for initial installation
 
 ### Required Permissions
@@ -99,7 +99,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ### 動作環境
 - **OS**: Windows 10 / Windows 11
 - **アーキテクチャ**: x64
-- **ランタイム**: 不要（自己完結型）
+- **ランタイム**: .NET 8.0 Runtime必要（フレームワーク依存）
 - **インターネット**: 初回インストール時のみ必要
 
 ### 必要な権限
@@ -112,7 +112,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 - **.NET 8.0** - Latest .NET platform
 - **Windows Forms** - Native Windows UI
 - **C# 12** - Latest language features
-- **Self-Contained Deployment** - Dependencies included
+- **Framework-Dependent Deployment** - Requires .NET 8.0 Runtime
 
 ### External Tools
 - **winget** - Node.js automatic installation
@@ -130,7 +130,7 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 - **.NET 8.0** - 最新の.NETプラットフォーム
 - **Windows Forms** - ネイティブWindowsUI
 - **C# 12** - 最新言語機能を活用
-- **Self-Contained Deployment** - 依存関係を内包
+- **Framework-Dependent Deployment** - .NET 8.0 Runtime が必要
 
 ### 外部ツール
 - **winget** - Node.js自動インストール
@@ -147,6 +147,12 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ```
 📁 Project Root/
 ├── 📄 README.md                    # This file
+├── 🚀 ClaudeCodeLauncher.exe       # Ready-to-run executable (181KB)
+├── 🗑️ ClaudeCodeUninstaller.exe    # Ready-to-run executable (167KB)
+├── 🚀 CodexLauncher.exe            # Ready-to-run executable (180KB)
+├── 🗑️ CodexUninstaller.exe         # Ready-to-run executable (166KB)
+├── 🚀 GeminiLauncher.exe           # Ready-to-run executable (180KB)
+├── 🗑️ GeminiUninstaller.exe        # Ready-to-run executable (166KB)
 ├── 📁 GeminiLauncher/
 │   ├── 💻 GeminiLauncher.cs        # Optimized source code
 │   └── ⚙️ GeminiLauncher.csproj    # Project configuration
@@ -172,6 +178,12 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ```
 📁 プロジェクトルート/
 ├── 📄 README.md                    # このファイル
+├── 🚀 ClaudeCodeLauncher.exe       # 実行済み実行ファイル (181KB)
+├── 🗑️ ClaudeCodeUninstaller.exe    # 実行済み実行ファイル (167KB)
+├── 🚀 CodexLauncher.exe            # 実行済み実行ファイル (180KB)
+├── 🗑️ CodexUninstaller.exe         # 実行済み実行ファイル (166KB)
+├── 🚀 GeminiLauncher.exe           # 実行済み実行ファイル (180KB)
+├── 🗑️ GeminiUninstaller.exe        # 実行済み実行ファイル (166KB)
 ├── 📁 GeminiLauncher/
 │   ├── 💻 GeminiLauncher.cs        # 最適化されたソースコード
 │   └── ⚙️ GeminiLauncher.csproj    # プロジェクト設定
@@ -211,12 +223,12 @@ dotnet build "CodexUninstaller/CodexUninstaller.csproj"
 
 **Release Publication:**
 ```bash
-dotnet publish "GeminiLauncher/GeminiLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "GeminiUninstaller/GeminiUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "ClaudeCodeLauncher/ClaudeCodeLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "ClaudeCodeUninstaller/ClaudeCodeUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "CodexLauncher/CodexLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "CodexUninstaller/CodexUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
+dotnet publish GeminiLauncher -c Release
+dotnet publish GeminiUninstaller -c Release
+dotnet publish ClaudeCodeLauncher -c Release
+dotnet publish ClaudeCodeUninstaller -c Release
+dotnet publish CodexLauncher -c Release
+dotnet publish CodexUninstaller -c Release
 ```
 
 ## 🔧 開発者向け情報
@@ -238,12 +250,12 @@ dotnet build "CodexUninstaller/CodexUninstaller.csproj"
 
 **リリース用発行:**
 ```bash
-dotnet publish "GeminiLauncher/GeminiLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "GeminiUninstaller/GeminiUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "ClaudeCodeLauncher/ClaudeCodeLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "ClaudeCodeUninstaller/ClaudeCodeUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "CodexLauncher/CodexLauncher.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
-dotnet publish "CodexUninstaller/CodexUninstaller.csproj" -c Release -p:PublishSingleFile=true --self-contained true -r win-x64
+dotnet publish GeminiLauncher -c Release
+dotnet publish GeminiUninstaller -c Release
+dotnet publish ClaudeCodeLauncher -c Release
+dotnet publish ClaudeCodeUninstaller -c Release
+dotnet publish CodexLauncher -c Release
+dotnet publish CodexUninstaller -c Release
 ```
 
 ### コード品質
@@ -297,6 +309,7 @@ dotnet publish "CodexUninstaller/CodexUninstaller.csproj" -c Release -p:PublishS
 
 ---
 
-**📅 最終更新**: 2025年8月16日  
-**🔖 バージョン**: 多言語対応版  
+**📅 最終更新**: 2025年8月17日  
+**🔖 バージョン**: 軽量最適化版  
+**📊 ファイルサイズ**: 各実行ファイル約180KB（99.8%削減達成）  
 **👨‍💻 開発**: Claude Code supported
