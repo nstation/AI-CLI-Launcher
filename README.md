@@ -148,23 +148,23 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 📁 Project Root/
 ├── 📄 README.md                    # This file
 ├── 📁 GeminiLauncher/
-│   ├── 💻 GeminiLauncher.cs        # Optimized source code
-│   └── ⚙️ GeminiLauncher.csproj    # Project configuration
+│   ├── 💻 GeminiLauncher.cs        
+│   └── ⚙️ GeminiLauncher.csproj   
 ├── 📁 GeminiUninstaller/
-│   ├── 💻 GeminiUninstaller.cs     # Optimized source code
-│   └── ⚙️ GeminiUninstaller.csproj # Project configuration
+│   ├── 💻 GeminiUninstaller.cs     
+│   └── ⚙️ GeminiUninstaller.csproj
 ├── 📁 ClaudeCodeLauncher/
-│   ├── 💻 ClaudeCodeLauncher.cs    # Optimized source code
-│   └── ⚙️ ClaudeCodeLauncher.csproj # Project configuration
+│   ├── 💻 ClaudeCodeLauncher.cs    
+│   └── ⚙️ ClaudeCodeLauncher.csproj
 ├── 📁 ClaudeCodeUninstaller/
-│   ├── 💻 ClaudeCodeUninstaller.cs # Optimized source code
-│   └── ⚙️ ClaudeCodeUninstaller.csproj # Project configuration
+│   ├── 💻 ClaudeCodeUninstaller.cs 
+│   └── ⚙️ ClaudeCodeUninstaller.csproj
 ├── 📁 CodexLauncher/
-│   ├── 💻 CodexLauncher.cs         # Optimized source code
-│   └── ⚙️ CodexLauncher.csproj     # Project configuration
+│   ├── 💻 CodexLauncher.cs         
+│   └── ⚙️ CodexLauncher.csproj    
 └── 📁 CodexUninstaller/
-    ├── 💻 CodexUninstaller.cs      # Optimized source code
-    └── ⚙️ CodexUninstaller.csproj  # Project configuration
+    ├── 💻 CodexUninstaller.cs      
+    └── ⚙️ CodexUninstaller.csproj 
 ```
 
 ## 📁 プロジェクト構成
@@ -173,23 +173,23 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 📁 プロジェクトルート/
 ├── 📄 README.md                    # このファイル
 ├── 📁 GeminiLauncher/
-│   ├── 💻 GeminiLauncher.cs        # 最適化されたソースコード
-│   └── ⚙️ GeminiLauncher.csproj    # プロジェクト設定
+│   ├── 💻 GeminiLauncher.cs        
+│   └── ⚙️ GeminiLauncher.csproj    
 ├── 📁 GeminiUninstaller/
-│   ├── 💻 GeminiUninstaller.cs     # 最適化されたソースコード
-│   └── ⚙️ GeminiUninstaller.csproj # プロジェクト設定
+│   ├── 💻 GeminiUninstaller.cs     
+│   └── ⚙️ GeminiUninstaller.csproj 
 ├── 📁 ClaudeCodeLauncher/
-│   ├── 💻 ClaudeCodeLauncher.cs    # 最適化されたソースコード
-│   └── ⚙️ ClaudeCodeLauncher.csproj # プロジェクト設定
+│   ├── 💻 ClaudeCodeLauncher.cs    
+│   └── ⚙️ ClaudeCodeLauncher.csproj 
 ├── 📁 ClaudeCodeUninstaller/
-│   ├── 💻 ClaudeCodeUninstaller.cs # 最適化されたソースコード
-│   └── ⚙️ ClaudeCodeUninstaller.csproj # プロジェクト設定
+│   ├── 💻 ClaudeCodeUninstaller.cs 
+│   └── ⚙️ ClaudeCodeUninstaller.csproj 
 ├── 📁 CodexLauncher/
-│   ├── 💻 CodexLauncher.cs         # 最適化されたソースコード
-│   └── ⚙️ CodexLauncher.csproj     # プロジェクト設定
+│   ├── 💻 CodexLauncher.cs         
+│   └── ⚙️ CodexLauncher.csproj     
 └── 📁 CodexUninstaller/
-    ├── 💻 CodexUninstaller.cs      # 最適化されたソースコード
-    └── ⚙️ CodexUninstaller.csproj  # プロジェクト設定
+    ├── 💻 CodexUninstaller.cs      
+    └── ⚙️ CodexUninstaller.csproj  
 ```
 
 ## 🔧 Developer Information
@@ -278,26 +278,3 @@ dotnet publish CodexUninstaller -c Release
 2. **アーキテクチャ**: x64のみ（x86/ARM未対応）
 3. **言語**: 日本語・英語対応（その他の言語は英語で表示）
 
-## 📞 サポート
-
-### 問題解決の手順
-1. **ログ確認**: アプリ内のログエリアでエラー詳細を確認
-2. **手動実行**: 問題のあるコマンドを手動で実行
-3. **クリーンインストール**: Uninstallerで削除後、再インストール
-
-### フィードバック
-技術的な問題や改善提案は開発者までお問い合わせください。
-
----
-
-## 📄 ライセンス
-
-このプロジェクトは個人利用・学習目的で作成されています。
-商用利用や再配布については開発者にお問い合わせください。
-
----
-
-**📅 最終更新**: 2025年8月17日  
-**🔖 バージョン**: 軽量最適化版  
-**📊 ファイルサイズ**: 各実行ファイル約180KB（99.8%削減達成）  
-**👨‍💻 開発**: Claude Code supported
