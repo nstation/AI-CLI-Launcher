@@ -147,12 +147,6 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ```
 📁 Project Root/
 ├── 📄 README.md                    # This file
-├── 🚀 ClaudeCodeLauncher.exe       # Ready-to-run executable (181KB)
-├── 🗑️ ClaudeCodeUninstaller.exe    # Ready-to-run executable (167KB)
-├── 🚀 CodexLauncher.exe            # Ready-to-run executable (180KB)
-├── 🗑️ CodexUninstaller.exe         # Ready-to-run executable (166KB)
-├── 🚀 GeminiLauncher.exe           # Ready-to-run executable (180KB)
-├── 🗑️ GeminiUninstaller.exe        # Ready-to-run executable (166KB)
 ├── 📁 GeminiLauncher/
 │   ├── 💻 GeminiLauncher.cs        # Optimized source code
 │   └── ⚙️ GeminiLauncher.csproj    # Project configuration
@@ -178,12 +172,6 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 ```
 📁 プロジェクトルート/
 ├── 📄 README.md                    # このファイル
-├── 🚀 ClaudeCodeLauncher.exe       # 実行済み実行ファイル (181KB)
-├── 🗑️ ClaudeCodeUninstaller.exe    # 実行済み実行ファイル (167KB)
-├── 🚀 CodexLauncher.exe            # 実行済み実行ファイル (180KB)
-├── 🗑️ CodexUninstaller.exe         # 実行済み実行ファイル (166KB)
-├── 🚀 GeminiLauncher.exe           # 実行済み実行ファイル (180KB)
-├── 🗑️ GeminiUninstaller.exe        # 実行済み実行ファイル (166KB)
 ├── 📁 GeminiLauncher/
 │   ├── 💻 GeminiLauncher.cs        # 最適化されたソースコード
 │   └── ⚙️ GeminiLauncher.csproj    # プロジェクト設定
