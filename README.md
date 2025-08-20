@@ -42,7 +42,6 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 
 1. **Launch**: Double-click any launcher executable (e.g., `GeminiLauncher.exe`)
 2. **Set Work Directory**: Use Browse button to select folder (default: Desktop)
-3. **Start**: Click the respective "Start" button
 
 #### First-time Execution Auto-Process
 - ✅ Node.js verification and auto-installation (using winget)
@@ -65,7 +64,6 @@ Windows向けの AI CLI ツールを簡単に利用するための包括的な G
 
 1. **起動**: 任意のランチャー実行ファイル（例：`GeminiLauncher.exe`）をダブルクリック
 2. **作業フォルダ設定**: Browseボタンでフォルダを選択（デフォルト: デスクトップ）
-3. **起動**: 対応する「Start」ボタンをクリック
 
 #### 初回実行時の自動処理
 - ✅ Node.js の確認・自動インストール（winget使用）

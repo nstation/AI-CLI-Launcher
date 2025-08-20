@@ -13,6 +13,7 @@ namespace CodexLauncher
         private Button _browseButton = null!;
         private Button _startButton = null!;
         private TextBox _logTextBox = null!;
+        private CheckBox _bypassApprovalsCheckBox = null!;
 
         // Constants
         private const string NODE_WINGET_ID = "OpenJS.NodeJS";
@@ -28,6 +29,7 @@ namespace CodexLauncher
         {
             InitializeComponent();
             _workDirTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            _bypassApprovalsCheckBox.Checked = true; // Default ON
         }
 
         private void InitializeComponent()
@@ -56,6 +58,16 @@ namespace CodexLauncher
             _browseButton.Click += BrowseButton_Click;
             mainTable.Controls.Add(_browseButton, 2, 0);
 
+            // Bypass approvals checkbox
+            _bypassApprovalsCheckBox = new CheckBox 
+            { 
+                Text = IsJapanese ? "承認とサンドボックスをバイパス (--dangerously-bypass-approvals-and-sandbox)" : "Bypass approvals and sandbox (--dangerously-bypass-approvals-and-sandbox)",
+                AutoSize = true,
+                Margin = new Padding(0, 5, 0, 5)
+            };
+            mainTable.SetColumnSpan(_bypassApprovalsCheckBox, 3);
+            mainTable.Controls.Add(_bypassApprovalsCheckBox, 0, 1);
+
             // Log text box
             _logTextBox = new TextBox
             {
@@ -66,13 +78,13 @@ namespace CodexLauncher
                 Font = new System.Drawing.Font("Consolas", 9.75F)
             };
             mainTable.SetColumnSpan(_logTextBox, 3);
-            mainTable.Controls.Add(_logTextBox, 0, 1);
+            mainTable.Controls.Add(_logTextBox, 0, 2);
 
             // Start button
             _startButton = new Button { Text = "Start Codex", Dock = DockStyle.Fill, Height = 40 };
             _startButton.Click += StartButton_Click;
             mainTable.SetColumnSpan(_startButton, 3);
-            mainTable.Controls.Add(_startButton, 0, 2);
+            mainTable.Controls.Add(_startButton, 0, 3);
         }
 
         private TableLayoutPanel CreateMainLayout()
@@ -81,13 +93,14 @@ namespace CodexLauncher
             { 
                 Dock = DockStyle.Fill, 
                 ColumnCount = 3, 
-                RowCount = 3, 
+                RowCount = 4, 
                 Padding = new Padding(10) 
             };
 
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -187,7 +200,7 @@ namespace CodexLauncher
                 return;
             }
 
-            LaunchCodexInNewWindow(workDir, workingCommand);
+            LaunchCodexInNewWindow(workDir, workingCommand, _bypassApprovalsCheckBox.Checked);
             Log(IsJapanese ? "Codex CLIが正常に起動しました。ランチャーを終了します..." : "Codex CLI started successfully. Closing launcher...");
             await Task.Delay(UI_DELAY_MS);
             Application.Exit();
@@ -219,12 +232,13 @@ namespace CodexLauncher
             return null;
         }
 
-        private static void LaunchCodexInNewWindow(string workDir, string command)
+        private static void LaunchCodexInNewWindow(string workDir, string command, bool bypassApprovalsAndSandbox)
         {
+            var codexCommand = bypassApprovalsAndSandbox ? $"{command} --dangerously-bypass-approvals-and-sandbox" : command;
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = $"/c start cmd.exe /k \"cd /d \"{workDir}\" && {command}\"",
+                Arguments = $"/c start cmd.exe /k \"cd /d \"{workDir}\" && {codexCommand}\"",
                 UseShellExecute = true,
             });
         }
