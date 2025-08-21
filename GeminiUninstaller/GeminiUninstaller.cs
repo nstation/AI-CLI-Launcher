@@ -16,7 +16,9 @@ namespace GeminiUninstaller
 
         // Constants
         private const string GEMINI_NPM_PACKAGE = "@google/gemini-cli";
-        private const string NODE_WINGET_ID = "OpenJS.NodeJS.LTS";
+        private const string GEMINI_COMMAND_NAME = "gemini";
+        private const string GEMINI_CONFIG_FOLDER = ".gemini";
+        private const string NODE_WINGET_ID = "OpenJS.NodeJS";
 
         // Language detection
         private static readonly bool IsJapanese = CultureInfo.CurrentUICulture.Name.StartsWith("ja");
@@ -163,51 +165,119 @@ namespace GeminiUninstaller
 
         private async Task UninstallGeminiCliAsync()
         {
-            Log(IsJapanese ? "Gemini CLIをアンインストール中..." : "Uninstalling Gemini CLI...");
-            await RunProcessAsync("npm.cmd", $"uninstall -g {GEMINI_NPM_PACKAGE}");
-            Log(IsJapanese ? "Gemini CLIのアンインストールコマンドが完了しました。" : "Gemini CLI uninstall command finished.");
+            Log(IsJapanese ? "Gemini CLIの存在確認中..." : "Checking Gemini CLI installation...");
+            var isInstalled = await CheckPackageInstalledAsync(GEMINI_NPM_PACKAGE);
+            
+            if (!isInstalled)
+            {
+                Log(IsJapanese ? "NPMパッケージが見つかりませんでした。直接ファイルを確認します..." : "NPM package not found. Checking files directly...");
+            }
+            else
+            {
+                Log(IsJapanese ? "NPMパッケージをアンインストール中..." : "Uninstalling NPM package...");
+                var exitCode = await RunProcessAsync("npm.cmd", $"uninstall -g {GEMINI_NPM_PACKAGE}");
+                
+                if (exitCode == 0)
+                {
+                    Log(IsJapanese ? "NPMパッケージのアンインストールが完了しました。" : "NPM package uninstalled successfully.");
+                }
+                else
+                {
+                    Log(IsJapanese ? $"NPMパッケージのアンインストールでエラーが発生しました。（終了コード: {exitCode}）" : $"Error occurred during NPM package uninstallation. (Exit code: {exitCode})");
+                }
+            }
+            
+            await RemoveCommandFilesAsync(GEMINI_COMMAND_NAME);
+            await RemoveConfigFolderAsync(GEMINI_CONFIG_FOLDER);
         }
 
         private async Task UninstallNodeAsync()
         {
-            Log(IsJapanese ? "\nNode.jsをアンインストール中..." : "\nUninstalling Node.js...");
+            Log(IsJapanese ? "\nNode.jsの存在確認中..." : "\nChecking Node.js installation...");
+            var isInstalled = await CheckNodeInstalledAsync();
+            
+            if (!isInstalled)
+            {
+                Log(IsJapanese ? "Node.jsはインストールされていません。" : "Node.js is not installed.");
+                return;
+            }
+            
+            Log(IsJapanese ? "Node.jsをアンインストール中..." : "Uninstalling Node.js...");
             Log(IsJapanese ? "この処理には管理者権限が必要で、確認プロンプトが表示される場合があります。" : "This may require administrator privileges and a confirmation prompt.");
-            await RunProcessAsync("winget", $"uninstall --id {NODE_WINGET_ID} --accept-source-agreements");
-            Log(IsJapanese ? "Node.jsのアンインストールコマンドが完了しました。" : "Node.js uninstall command finished.");
+            
+            var exitCode = await RunProcessAsync("winget", $"uninstall --id {NODE_WINGET_ID} --accept-source-agreements --silent", requiresElevation: true);
+            
+            if (exitCode == 0)
+            {
+                Log(IsJapanese ? "Node.jsのアンインストールが完了しました。" : "Node.js uninstalled successfully.");
+            }
+            else
+            {
+                Log(IsJapanese ? $"Node.jsのアンインストールでエラーが発生しました。（終了コード: {exitCode}）" : $"Error occurred during Node.js uninstallation. (Exit code: {exitCode})");
+            }
         }
 
-        private async Task RunProcessAsync(string fileName, string arguments)
+        private async Task<int> RunProcessAsync(string fileName, string arguments, bool requiresElevation = false)
         {
             using var process = new Process
             {
-                StartInfo = CreateProcessStartInfo(fileName, arguments),
+                StartInfo = CreateProcessStartInfo(fileName, arguments, requiresElevation),
                 EnableRaisingEvents = true
             };
 
-            process.OutputDataReceived += (_, e) => { if (e.Data != null) Log(e.Data); };
-            process.ErrorDataReceived += (_, e) => { if (e.Data != null) Log((IsJapanese ? "エラー: " : "ERROR: ") + e.Data); };
+            if (!requiresElevation)
+            {
+                process.OutputDataReceived += (_, e) => { if (e.Data != null) Log(e.Data); };
+                process.ErrorDataReceived += (_, e) => { if (e.Data != null) Log((IsJapanese ? "エラー: " : "ERROR: ") + e.Data); };
+            }
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            await process.WaitForExitAsync();
+            try
+            {
+                process.Start();
+                
+                if (!requiresElevation)
+                {
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                }
+                else
+                {
+                    Log(IsJapanese ? "管理者権限でプロセスを実行中..." : "Running process with administrator privileges...");
+                }
+                
+                await process.WaitForExitAsync();
+                return process.ExitCode;
+            }
+            catch (Exception ex)
+            {
+                Log(IsJapanese ? $"プロセス実行エラー: {ex.Message}" : $"Process execution error: {ex.Message}");
+                return -1;
+            }
         }
 
-        private static ProcessStartInfo CreateProcessStartInfo(string fileName, string arguments)
+        private static ProcessStartInfo CreateProcessStartInfo(string fileName, string arguments, bool requiresElevation = false)
         {
             var startInfo = new ProcessStartInfo
             {
                 FileName = fileName,
                 Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                StandardOutputEncoding = System.Text.Encoding.UTF8,
-                StandardErrorEncoding = System.Text.Encoding.UTF8,
-                UseShellExecute = false,
-                CreateNoWindow = true,
+                RedirectStandardOutput = !requiresElevation,
+                RedirectStandardError = !requiresElevation,
+                UseShellExecute = requiresElevation,
+                CreateNoWindow = !requiresElevation,
             };
 
-            EnhanceProcessEnvironment(startInfo);
+            if (!requiresElevation)
+            {
+                startInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
+                startInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
+                EnhanceProcessEnvironment(startInfo);
+            }
+            else
+            {
+                startInfo.Verb = "runas";
+            }
+            
             return startInfo;
         }
 
@@ -224,6 +294,171 @@ namespace GeminiUninstaller
             AddNodeJsPath(pathBuilder);
             AddNpmPaths(pathBuilder);
             return pathBuilder.ToString();
+        }
+        
+        private async Task<bool> CheckPackageInstalledAsync(string packageName)
+        {
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = CreateProcessStartInfo("npm.cmd", "list -g --depth=0"),
+                    EnableRaisingEvents = true
+                };
+
+                var output = new System.Text.StringBuilder();
+                process.OutputDataReceived += (_, e) => { if (e.Data != null) output.AppendLine(e.Data); };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                await process.WaitForExitAsync();
+
+                return output.ToString().Contains(packageName);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        private async Task<bool> CheckNodeInstalledAsync()
+        {
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = CreateProcessStartInfo("node", "--version"),
+                    EnableRaisingEvents = true
+                };
+
+                process.Start();
+                await process.WaitForExitAsync();
+                return process.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        private async Task RemoveCommandFilesAsync(string commandName)
+        {
+            Log(IsJapanese ? $"{commandName}コマンドファイルを直接削除中..." : $"Removing {commandName} command files directly...");
+            
+            var appDataPath = Environment.GetEnvironmentVariable("APPDATA");
+            if (appDataPath != null)
+            {
+                var npmPath = Path.Combine(appDataPath, "npm");
+                var commandPaths = new[]
+                {
+                    Path.Combine(npmPath, commandName),
+                    Path.Combine(npmPath, $"{commandName}.cmd"),
+                    Path.Combine(npmPath, $"{commandName}.ps1")
+                };
+
+                foreach (var filePath in commandPaths)
+                {
+                    try
+                    {
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                            Log(IsJapanese ? $"削除成功: {filePath}" : $"Deleted: {filePath}");
+                        }
+                        else
+                        {
+                            Log(IsJapanese ? $"ファイルが存在しません: {filePath}" : $"File not found: {filePath}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(IsJapanese ? $"ファイル削除エラー {filePath}: {ex.Message}" : $"File deletion error {filePath}: {ex.Message}");
+                    }
+                }
+            }
+            
+            var isStillAvailable = await CheckCommandAvailableAsync(commandName);
+            if (isStillAvailable)
+            {
+                Log(IsJapanese ? $"警告: {commandName}コマンドがまだ実行可能です。手動で確認してください。" : $"Warning: {commandName} command is still available. Please check manually.");
+            }
+            else
+            {
+                Log(IsJapanese ? $"{commandName}コマンドの削除が完了しました。" : $"{commandName} command has been successfully removed.");
+            }
+        }
+        
+        private async Task<bool> CheckCommandAvailableAsync(string commandName)
+        {
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = CreateProcessStartInfo("cmd", $"/c where {commandName}"),
+                    EnableRaisingEvents = true
+                };
+
+                process.Start();
+                await process.WaitForExitAsync();
+                return process.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        private async Task RemoveConfigFolderAsync(string configFolderName)
+        {
+            await Task.Run(() =>
+            {
+                Log(IsJapanese ? $"{configFolderName}設定フォルダを削除中..." : $"Removing {configFolderName} configuration folder...");
+                
+                var homePath = Environment.GetEnvironmentVariable("HOMEPATH");
+                var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+                
+                string? configPath = null;
+                if (!string.IsNullOrEmpty(userProfile))
+                {
+                    configPath = Path.Combine(userProfile, configFolderName);
+                }
+                else if (!string.IsNullOrEmpty(homePath))
+                {
+                    var systemDrive = Environment.GetEnvironmentVariable("HOMEDRIVE") ?? "C:";
+                    configPath = Path.Combine(systemDrive, homePath, configFolderName);
+                }
+                
+                if (configPath != null && Directory.Exists(configPath))
+                {
+                    try
+                    {
+                        Directory.Delete(configPath, true);
+                        Log(IsJapanese ? $"設定フォルダを削除しました: {configPath}" : $"Configuration folder deleted: {configPath}");
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Log(IsJapanese ? $"アクセスが拒否されました: {configPath} - {ex.Message}" : $"Access denied: {configPath} - {ex.Message}");
+                        Log(IsJapanese ? "使用中のファイルがある可能性があります。手動で削除してください。" : "There might be files in use. Please delete manually.");
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        Log(IsJapanese ? $"フォルダが見つかりません: {configPath}" : $"Folder not found: {configPath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(IsJapanese ? $"設定フォルダ削除エラー {configPath}: {ex.Message}" : $"Configuration folder deletion error {configPath}: {ex.Message}");
+                        Log(IsJapanese ? "手動で削除してください。" : "Please delete manually.");
+                    }
+                }
+                else if (configPath != null)
+                {
+                    Log(IsJapanese ? $"設定フォルダが存在しません: {configPath}" : $"Configuration folder does not exist: {configPath}");
+                }
+                else
+                {
+                    Log(IsJapanese ? "ホームパスを取得できませんでした。" : "Could not determine home path.");
+                }
+            });
         }
 
         private static void AddNodeJsPath(System.Text.StringBuilder pathBuilder)

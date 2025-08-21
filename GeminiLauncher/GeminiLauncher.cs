@@ -24,10 +24,15 @@ namespace GeminiLauncher
         // Language detection
         private static readonly bool IsJapanese = CultureInfo.CurrentUICulture.Name.StartsWith("ja");
 
-        public GeminiLauncherForm()
+        private readonly bool _autoStart;
+        private readonly string? _savedWorkDir;
+
+        public GeminiLauncherForm(bool autoStart = false, string? savedWorkDir = null)
         {
+            _autoStart = autoStart;
+            _savedWorkDir = savedWorkDir;
             InitializeComponent();
-            _workDirTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            _workDirTextBox.Text = _savedWorkDir ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
 
         private void InitializeComponent()
@@ -104,10 +109,27 @@ namespace GeminiLauncher
             }
         }
 
+        protected override async void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            
+            if (_autoStart)
+            {
+                Log(IsJapanese ? "再起動後の自動実行を開始します..." : "Starting auto-execution after restart...");
+                await Task.Delay(1000);
+                await PerformStartOperation();
+            }
+        }
+
         private async void StartButton_Click(object? sender, EventArgs e)
         {
+            await PerformStartOperation();
+        }
+        
+        private async Task PerformStartOperation()
+        {
             _startButton.Enabled = false;
-            _logTextBox.Clear();
+            if (!_autoStart) _logTextBox.Clear();
 
             try
             {
@@ -124,7 +146,7 @@ namespace GeminiLauncher
                 var installationResult = await CheckAndInstallDependencies(workDir);
                 if (installationResult.ShouldRestart)
                 {
-                    await HandleApplicationRestart();
+                    await HandleApplicationRestart(workDir);
                     return;
                 }
 
@@ -164,13 +186,13 @@ namespace GeminiLauncher
             return (nodeInstalled || geminiInstalled, nodeInstalled, geminiInstalled);
         }
 
-        private async Task HandleApplicationRestart()
+        private async Task HandleApplicationRestart(string workDir)
         {
             Log(IsJapanese ? "\n新しいインストールが完了しました。" : "\nNew installations completed.");
             Log(IsJapanese ? $"環境変数を更新するため、{RESTART_DELAY_MS / 1000}秒後にアプリケーションを自動再起動します..." : $"Restarting application in {RESTART_DELAY_MS / 1000} seconds to update environment variables...");
             await Task.Delay(RESTART_DELAY_MS);
             Log(IsJapanese ? "アプリケーションを再起動中..." : "Restarting application...");
-            RestartApplication();
+            RestartApplication(workDir);
         }
 
         private async Task StartGeminiCli(string workDir)
@@ -463,16 +485,24 @@ namespace GeminiLauncher
             }
         }
 
-        private void RestartApplication()
+        private void RestartApplication(string? workDir = null)
         {
             try
             {
                 RefreshEnvironmentVariables();
                 
                 var currentExePath = Application.ExecutablePath;
+                var arguments = string.Empty;
+                
+                if (!string.IsNullOrEmpty(workDir))
+                {
+                    arguments = $"--auto-start --work-dir \"{workDir}\"";
+                }
+                
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = currentExePath,
+                    Arguments = arguments,
                     UseShellExecute = true
                 });
                 Application.Exit();
@@ -553,11 +583,38 @@ namespace GeminiLauncher
     public static class Program
     {
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new GeminiLauncherForm());
+            
+            var (autoStart, workDir) = ParseCommandLineArgs(args);
+            Application.Run(new GeminiLauncherForm(autoStart, workDir));
+        }
+        
+        private static (bool AutoStart, string? WorkDir) ParseCommandLineArgs(string[] args)
+        {
+            var autoStart = false;
+            string? workDir = null;
+            
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i].ToLower())
+                {
+                    case "--auto-start":
+                        autoStart = true;
+                        break;
+                    case "--work-dir":
+                        if (i + 1 < args.Length)
+                        {
+                            workDir = args[i + 1];
+                            i++;
+                        }
+                        break;
+                }
+            }
+            
+            return (autoStart, workDir);
         }
     }
 
