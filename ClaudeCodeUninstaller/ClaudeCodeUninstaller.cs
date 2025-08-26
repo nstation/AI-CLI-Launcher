@@ -31,8 +31,11 @@ namespace ClaudeCodeUninstaller
         private void InitializeComponent()
         {
             Text = "Claude Code Uninstaller";
-            Size = new System.Drawing.Size(600, 450);
+            Size = new System.Drawing.Size(900, 675);
             StartPosition = FormStartPosition.CenterScreen;
+            
+            // フォーム全体のフォント設定
+            Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 
             var mainTable = CreateMainLayout();
             Controls.Add(mainTable);
@@ -48,12 +51,19 @@ namespace ClaudeCodeUninstaller
                 Multiline = true,
                 ReadOnly = true,
                 ScrollBars = ScrollBars.Vertical,
-                Font = new System.Drawing.Font("Consolas", 9.75F)
+                Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point),
+                BackColor = System.Drawing.Color.FromArgb(248, 248, 248)
             };
             mainTable.Controls.Add(_logTextBox, 0, 1);
 
             // Uninstall button
-            _uninstallButton = new Button { Text = IsJapanese ? "アンインストール実行" : "Execute Uninstall", Dock = DockStyle.Fill, Height = 40 };
+            _uninstallButton = new Button 
+            { 
+                Text = IsJapanese ? "アンインストール実行" : "Execute Uninstall", 
+                Dock = DockStyle.Fill, 
+                Height = 40,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             _uninstallButton.Click += UninstallButton_Click;
             mainTable.Controls.Add(_uninstallButton, 0, 2);
         }
@@ -76,28 +86,31 @@ namespace ClaudeCodeUninstaller
 
         private Panel CreateOptionsPanel()
         {
-            var optionsPanel = new Panel { Height = 80, Dock = DockStyle.Fill };
+            var optionsPanel = new Panel { Height = 100, Dock = DockStyle.Fill };
             
             var optionsLabel = new Label 
             { 
                 Text = IsJapanese ? "アンインストールオプション:" : "Uninstall Options:", 
                 Location = new System.Drawing.Point(0, 0), 
-                AutoSize = true 
+                AutoSize = true,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             };
             optionsPanel.Controls.Add(optionsLabel);
 
             _claudeCodeOnlyRadio = new RadioButton 
             { 
                 Text = IsJapanese ? "Claude Codeのみアンインストール" : "Uninstall Claude Code only", 
-                Location = new System.Drawing.Point(0, 25), 
+                Location = new System.Drawing.Point(0, 30), 
                 AutoSize = true, 
-                Checked = true 
+                Checked = true,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             };
             
             _claudeCodeAndNodeRadio = new RadioButton 
             { 
-                Text = IsJapanese ? "Claude CodeとNode.jsをアンインストール" : "Uninstall Claude Code and Node.js", 
-                Location = new System.Drawing.Point(0, 50), 
+                Text = IsJapanese ? "Claude CodeとNode.jsをアンインストール" : "Uninstall Claude Code and Node.js",
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point), 
+                Location = new System.Drawing.Point(0, 65), 
                 AutoSize = true 
             };
 
@@ -518,6 +531,7 @@ namespace ClaudeCodeUninstaller
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.Run(new ClaudeCodeUninstallerForm());
         }
     }

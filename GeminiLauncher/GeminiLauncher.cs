@@ -11,6 +11,7 @@ namespace GeminiLauncher
     {
         private TextBox _workDirTextBox = null!;
         private Button _browseButton = null!;
+        private CheckBox _yoloCheckBox = null!;
         private Button _startButton = null!;
         private TextBox _logTextBox = null!;
 
@@ -26,20 +27,31 @@ namespace GeminiLauncher
 
         private readonly bool _autoStart;
         private readonly string? _savedWorkDir;
+        private readonly bool _yolo;
 
-        public GeminiLauncherForm(bool autoStart = false, string? savedWorkDir = null)
+        public GeminiLauncherForm(bool autoStart = false, string? savedWorkDir = null, bool yolo = false)
         {
             _autoStart = autoStart;
             _savedWorkDir = savedWorkDir;
+            _yolo = yolo;
             InitializeComponent();
             _workDirTextBox.Text = _savedWorkDir ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            
+            // コマンドライン引数でyoloが指定されている場合はチェックボックスの状態を設定
+            if (yolo)
+            {
+                _yoloCheckBox.Checked = true;
+            }
         }
 
         private void InitializeComponent()
         {
             Text = "Gemini Launcher";
-            Size = new System.Drawing.Size(600, 400);
+            Size = new System.Drawing.Size(900, 600);
             StartPosition = FormStartPosition.CenterScreen;
+            
+            // フォーム全体のフォント設定
+            Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 
             var mainTable = CreateMainLayout();
             Controls.Add(mainTable);
@@ -50,16 +62,41 @@ namespace GeminiLauncher
                 Text = IsJapanese ? "作業ディレクトリ:" : "Work Directory:", 
                 Anchor = AnchorStyles.Left, 
                 AutoSize = true, 
-                Margin = new Padding(0, 5, 0, 0) 
+                Margin = new Padding(0, 5, 0, 0),
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             };
             mainTable.Controls.Add(workDirLabel, 0, 0);
 
-            _workDirTextBox = new TextBox { Dock = DockStyle.Fill };
+            _workDirTextBox = new TextBox 
+            { 
+                Dock = DockStyle.Fill,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             mainTable.Controls.Add(_workDirTextBox, 1, 0);
 
-            _browseButton = new Button { Text = "Browse...", Anchor = AnchorStyles.Right };
+            _browseButton = new Button 
+            { 
+                Text = "Browse...", 
+                Anchor = AnchorStyles.Right,
+                Width = 100,
+                Height = 40,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             _browseButton.Click += BrowseButton_Click;
             mainTable.Controls.Add(_browseButton, 2, 0);
+
+            // YOLO mode checkbox
+            _yoloCheckBox = new CheckBox
+            {
+                Text = IsJapanese ? "YOLOモード (依存関係チェックをスキップ)" : "YOLO Mode (Skip dependency checks)",
+                Checked = true,
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                Margin = new Padding(0, 5, 0, 5),
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
+            mainTable.SetColumnSpan(_yoloCheckBox, 3);
+            mainTable.Controls.Add(_yoloCheckBox, 0, 1);
 
             // Log text box
             _logTextBox = new TextBox
@@ -68,16 +105,23 @@ namespace GeminiLauncher
                 Multiline = true,
                 ReadOnly = true,
                 ScrollBars = ScrollBars.Vertical,
-                Font = new System.Drawing.Font("Consolas", 9.75F)
+                Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point),
+                BackColor = System.Drawing.Color.FromArgb(248, 248, 248)
             };
             mainTable.SetColumnSpan(_logTextBox, 3);
-            mainTable.Controls.Add(_logTextBox, 0, 1);
+            mainTable.Controls.Add(_logTextBox, 0, 2);
 
             // Start button
-            _startButton = new Button { Text = "Start Gemini", Dock = DockStyle.Fill, Height = 40 };
+            _startButton = new Button 
+            { 
+                Text = "Start Gemini", 
+                Dock = DockStyle.Fill, 
+                Height = 40,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             _startButton.Click += StartButton_Click;
             mainTable.SetColumnSpan(_startButton, 3);
-            mainTable.Controls.Add(_startButton, 0, 2);
+            mainTable.Controls.Add(_startButton, 0, 3);
         }
 
         private TableLayoutPanel CreateMainLayout()
@@ -86,13 +130,14 @@ namespace GeminiLauncher
             { 
                 Dock = DockStyle.Fill, 
                 ColumnCount = 3, 
-                RowCount = 3, 
+                RowCount = 4, 
                 Padding = new Padding(10) 
             };
 
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             mainTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -180,6 +225,12 @@ namespace GeminiLauncher
 
         private async Task<(bool ShouldRestart, bool NodeInstalled, bool GeminiInstalled)> CheckAndInstallDependencies(string workDir)
         {
+            if (_yoloCheckBox.Checked)
+            {
+                Log(IsJapanese ? "YOLOモードが有効です。依存関係のチェックをスキップします..." : "YOLO mode is enabled. Skipping dependency checks...");
+                return (false, false, false);
+            }
+            
             var nodeInstalled = await CheckAndInstallNodeAsync(workDir);
             var geminiInstalled = await CheckAndInstallGeminiCliAsync(workDir);
             
@@ -497,6 +548,10 @@ namespace GeminiLauncher
                 if (!string.IsNullOrEmpty(workDir))
                 {
                     arguments = $"--auto-start --work-dir \"{workDir}\"";
+                    if (_yoloCheckBox.Checked)
+                    {
+                        arguments += " --yolo";
+                    }
                 }
                 
                 Process.Start(new ProcessStartInfo
@@ -587,15 +642,17 @@ namespace GeminiLauncher
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             
-            var (autoStart, workDir) = ParseCommandLineArgs(args);
-            Application.Run(new GeminiLauncherForm(autoStart, workDir));
+            var (autoStart, workDir, yolo) = ParseCommandLineArgs(args);
+            Application.Run(new GeminiLauncherForm(autoStart, workDir, yolo));
         }
         
-        private static (bool AutoStart, string? WorkDir) ParseCommandLineArgs(string[] args)
+        private static (bool AutoStart, string? WorkDir, bool Yolo) ParseCommandLineArgs(string[] args)
         {
             var autoStart = false;
             string? workDir = null;
+            var yolo = false;
             
             for (int i = 0; i < args.Length; i++)
             {
@@ -611,10 +668,13 @@ namespace GeminiLauncher
                             i++;
                         }
                         break;
+                    case "--yolo":
+                        yolo = true;
+                        break;
                 }
             }
             
-            return (autoStart, workDir);
+            return (autoStart, workDir, yolo);
         }
     }
 

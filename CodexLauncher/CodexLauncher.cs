@@ -40,8 +40,9 @@ namespace CodexLauncher
         private void InitializeComponent()
         {
             Text = "Codex Launcher";
-            Size = new System.Drawing.Size(600, 400);
+            Size = new System.Drawing.Size(900, 600);
             StartPosition = FormStartPosition.CenterScreen;
+            Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 
             var mainTable = CreateMainLayout();
             Controls.Add(mainTable);
@@ -52,14 +53,26 @@ namespace CodexLauncher
                 Text = IsJapanese ? "作業ディレクトリ:" : "Work Directory:", 
                 Anchor = AnchorStyles.Left, 
                 AutoSize = true, 
-                Margin = new Padding(0, 5, 0, 0) 
+                Margin = new Padding(0, 5, 0, 0),
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             };
             mainTable.Controls.Add(workDirLabel, 0, 0);
 
-            _workDirTextBox = new TextBox { Dock = DockStyle.Fill };
+            _workDirTextBox = new TextBox 
+            {
+                Dock = DockStyle.Fill,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             mainTable.Controls.Add(_workDirTextBox, 1, 0);
 
-            _browseButton = new Button { Text = "Browse...", Anchor = AnchorStyles.Right };
+            _browseButton = new Button 
+            {
+                Text = "Browse...", 
+                Anchor = AnchorStyles.Right,
+                Width = 100,
+                Height = 40,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             _browseButton.Click += BrowseButton_Click;
             mainTable.Controls.Add(_browseButton, 2, 0);
 
@@ -68,7 +81,8 @@ namespace CodexLauncher
             { 
                 Text = IsJapanese ? "承認とサンドボックスをバイパス (--dangerously-bypass-approvals-and-sandbox)" : "Bypass approvals and sandbox (--dangerously-bypass-approvals-and-sandbox)",
                 AutoSize = true,
-                Margin = new Padding(0, 5, 0, 5)
+                Margin = new Padding(0, 5, 0, 5),
+                Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             };
             mainTable.SetColumnSpan(_bypassApprovalsCheckBox, 3);
             mainTable.Controls.Add(_bypassApprovalsCheckBox, 0, 1);
@@ -80,13 +94,20 @@ namespace CodexLauncher
                 Multiline = true,
                 ReadOnly = true,
                 ScrollBars = ScrollBars.Vertical,
-                Font = new System.Drawing.Font("Consolas", 9.75F)
+                Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point),
+                BackColor = System.Drawing.Color.FromArgb(248, 248, 248)
             };
             mainTable.SetColumnSpan(_logTextBox, 3);
             mainTable.Controls.Add(_logTextBox, 0, 2);
 
             // Start button
-            _startButton = new Button { Text = "Start Codex", Dock = DockStyle.Fill, Height = 40 };
+            _startButton = new Button 
+            {
+                Text = "Start Codex", 
+                Dock = DockStyle.Fill, 
+                Height = 40,
+                Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+            };
             _startButton.Click += StartButton_Click;
             mainTable.SetColumnSpan(_startButton, 3);
             mainTable.Controls.Add(_startButton, 0, 3);
@@ -601,6 +622,7 @@ namespace CodexLauncher
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             
             var (autoStart, workDir) = ParseCommandLineArgs(args);
             Application.Run(new CodexLauncherForm(autoStart, workDir));
