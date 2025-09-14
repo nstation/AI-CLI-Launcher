@@ -294,10 +294,29 @@ namespace GeminiLauncher
 
         private static void LaunchGeminiInNewWindow(string workDir, string command)
         {
+            var codePage = IsJapanese ? 932 : 65001;
+            var setupAndRun = $"chcp {codePage} >nul & cd /d \"{workDir}\" && {command}";
+
+            // Prefer Windows Terminal when available
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "wt.exe",
+                    Arguments = $"-p \"Command Prompt\" -d \"{workDir}\" cmd /k \"{setupAndRun}\"",
+                    UseShellExecute = true,
+                });
+                return;
+            }
+            catch
+            {
+                // Fallback
+            }
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = $"/c start cmd.exe /k \"cd /d \"{workDir}\" && {command}\"",
+                Arguments = $"/c start \"\" cmd.exe /k \"{setupAndRun}\"",
                 UseShellExecute = true,
             });
         }

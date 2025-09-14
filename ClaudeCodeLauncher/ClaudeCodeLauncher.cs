@@ -279,14 +279,33 @@ namespace ClaudeCodeLauncher
 
         private void LaunchClaudeCodeInNewWindow(string workDir, string command)
         {
-            var commandWithOptions = _skipPermissionsCheckBox.Checked 
-                ? $"{command} --dangerously-skip-permissions" 
+            var commandWithOptions = _skipPermissionsCheckBox.Checked
+                ? $"{command} --dangerously-skip-permissions"
                 : command;
-                
+
+            var codePage = IsJapanese ? 932 : 65001;
+            var setupAndRun = $"chcp {codePage} >nul & cd /d \"{workDir}\" && {commandWithOptions}";
+
+            // Prefer Windows Terminal when available
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "wt.exe",
+                    Arguments = $"-p \"Command Prompt\" -d \"{workDir}\" cmd /k \"{setupAndRun}\"",
+                    UseShellExecute = true,
+                });
+                return;
+            }
+            catch
+            {
+                // Fallback
+            }
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = $"/c start cmd.exe /k \"cd /d \"{workDir}\" && {commandWithOptions}\"",
+                Arguments = $"/c start \"\" cmd.exe /k \"{setupAndRun}\"",
                 UseShellExecute = true,
             });
         }

@@ -4,6 +4,18 @@ A comprehensive GUI application suite for easy AI CLI tools management on Window
 
 Windows向けの AI CLI ツールを簡単に利用するための包括的な GUI アプリケーションセットです。
 
+### 日本語入力（IME）に関する注意点
+
+一部環境で、ランチャーから起動したコマンドプロンプトに日本語が入力できないことがあります。以下の対策を実装・推奨しています。
+
+- ランチャーは起動時にコードページを自動設定します（日本語OSでは `chcp 932`、それ以外では `chcp 65001`）。
+- Windows Terminal が利用可能な場合は優先的に使用して起動します（IME互換性が高い）。
+- もし解決しない場合は、次を確認してください：
+  - コマンドプロンプトのプロパティで「旧バージョンのコンソールを使用する（レガシ）」が無効であること。
+  - フォントを日本語対応の TrueType フォント（例: MS ゴシック）に変更。
+  - Windows Terminal を既定のターミナル アプリケーションに設定。
+  - 必要に応じて `reg add HKCU\\Console /v ForceV2 /t REG_DWORD /d 1 /f` を実行して新しいコンソールを強制。
+
 ## 🌟 Features
 
 - **One-Click Environment Setup**: Automatic installation of Node.js and AI CLI tools

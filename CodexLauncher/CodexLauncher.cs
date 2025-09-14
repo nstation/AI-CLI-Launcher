@@ -278,10 +278,29 @@ namespace CodexLauncher
         private static void LaunchCodexInNewWindow(string workDir, string command, bool bypassApprovalsAndSandbox)
         {
             var codexCommand = bypassApprovalsAndSandbox ? $"{command} --dangerously-bypass-approvals-and-sandbox" : command;
+            var codePage = IsJapanese ? 932 : 65001;
+            var setupAndRun = $"chcp {codePage} >nul & cd /d \"{workDir}\" && {codexCommand}";
+
+            // Prefer Windows Terminal if available (IME互換性が高い)
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "wt.exe",
+                    Arguments = $"-p \"Command Prompt\" -d \"{workDir}\" cmd /k \"{setupAndRun}\"",
+                    UseShellExecute = true,
+                });
+                return;
+            }
+            catch
+            {
+                // Fallback to classic console
+            }
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
-                Arguments = $"/c start cmd.exe /k \"cd /d \"{workDir}\" && {codexCommand}\"",
+                Arguments = $"/c start \"\" cmd.exe /k \"{setupAndRun}\"",
                 UseShellExecute = true,
             });
         }
