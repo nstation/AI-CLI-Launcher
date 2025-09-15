@@ -297,22 +297,7 @@ namespace GeminiLauncher
             var codePage = IsJapanese ? 932 : 65001;
             var setupAndRun = $"chcp {codePage} >nul & cd /d \"{workDir}\" && {command}";
 
-            // Prefer Windows Terminal when available
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "wt.exe",
-                    Arguments = $"-p \"Command Prompt\" -d \"{workDir}\" cmd /k \"{setupAndRun}\"",
-                    UseShellExecute = true,
-                });
-                return;
-            }
-            catch
-            {
-                // Fallback
-            }
-
+            // Always use classic Command Prompt (no Windows Terminal)
             Process.Start(new ProcessStartInfo
             {
                 FileName = "cmd.exe",
@@ -338,7 +323,7 @@ namespace GeminiLauncher
             Log(IsJapanese ? "Node.jsがインストールされていません。winget経由でインストール中..." : "Node.js is not installed. Installing via winget...");
             try
             {
-                await RunProcessAsync("winget", $"install -e --id {NODE_WINGET_ID}", workDir);
+                await RunProcessAsync("winget", $"install -e --id {NODE_WINGET_ID} --accept-source-agreements", workDir);
                 Log(IsJapanese ? "Node.jsのインストールが完了しました。" : "Node.js installation completed.");
                 
                 return await VerifyNodeInstallation(workDir);
